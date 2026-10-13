@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kan Hizmetleri ve Transfüzyon Ön Testi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 40px auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .question-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover {
+            border-color: var(--primary);
+            background: #f5f3ff;
+        }
+
+        .option-label input {
+            margin-right: 12px;
+            accent-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-message h2 {
+            color: var(--success);
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Kan Hizmetleri ve Transfüzyon Ön Testi</h1>
+        <p>Lütfen aşağıdaki 10 soruyu yanıtlayın.</p>
+    </div>
+
+    <div class="content">
+        <form id="quizForm">
+            <div id="questionsContainer">
+                <!-- Sorular Javascript ile Dinamik Eklenecek -->
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Anketi Gönder</button>
+        </form>
+
+        <div class="loading" id="loadingDiv">Sonuçlar kaydediliyor, lütfen bekleyin...</div>
+
+        <div class="success-message" id="successDiv">
+            <h2>🎉 Testiniz Başarıyla Kaydedildi!</h2>
+            <p>Katılımınız için teşekkür ederiz. Sonuçlarınız başarıyla sisteme aktarılmıştır.</p>
+            <p id="scoreDisplay" style="margin-top: 15px; font-weight: 600; font-size: 16px; color: var(--primary);"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "1. Türkiye'de kan hizmet birimlerinin ruhsatlandırılması, ulusal standartlarının belirlenmesi ve tüm transfüzyon sisteminin denetlenmesinden sorumlu en üst yetkili otorite hangisidir?",
+            options: ["Türk Kızılay", "T.C. Sağlık Bakanlığı", "Sosyal Güvenlik Kurumu (SGK)", "Türk Tabipleri Birliği (TTB)"],
+            correct: 1
+        },
+        {
+            question: "2. Türkiye'deki bölgesel kan bankacılığı yapılanması kapsamında, ülke genelinde gönüllü ve düzenli kan bağışçısı kazanımı ile kan tedarik organizasyonunu yürütmekle yetkilendirilen kurum hangisidir?",
+            options: ["Türk Kızılay", "Sağlık Bakanlığı", "Kızılay Hastaneleri", "Üniversite Hastaneleri"],
+            correct: 0
+        },
+        {
+            question: "3. Bağışçılardan toplanan tam kanın eritrosit, trombosit ve taze donmuş plazma gibi bileşenlere ayrıştırıldığı ve mikrobiyolojik/immünohematolojik tarama testlerinin yapıldığı merkez hangisidir?",
+            options: ["Transfüzyon Merkezi (TM)", "Kan Bağışı Merkezi (KBM)", "Bölge Kan Merkezi (BKM)", "Hastane Kan Bankası"],
+            correct: 2
+        },
+        {
+            question: "4. Bölge Kan Merkezi'nin (BKM) görev ve yetki sınırları dikkate alındığında, aşağıdakilerden hangisi BKM'nin yetki alanı dışındadır (yapmadığı iştir)?",
+            options: ["Kan bileşenlerini üretmek", "Kan testlerini (mikrobiyolojik ve immünohematolojik) yapmak", "Doğrudan hastalara kan transfüzyonu (nakli) uygulamak", "Bağışçılardan kan toplamak ve depolamak"],
+            correct: 2
+        },
+        {
+            question: "5. Doğrudan Bölge Kan Merkezi'ne (BKM) bağlı olarak çalışan, toplumda kan bağışı bilinci oluşturan, bağışçı kabulü ve kan alma (flebotomi) süreçlerini yürüten birim hangisidir?",
+            options: ["Kan Bağışı Merkezi (KBM)", "Transfüzyon Merkezi (TM)", "Sağlık Ocağı", "Acil Servis"],
+            correct: 0
+        },
+        {
+            question: "6. Kan Bağışı Merkezlerinin (KBM) çalışma sınırları ve yetkileri ile ilgili aşağıdaki ifadelerden hangisi DOĞRUDUR?",
+            options: ["Tam kan bağışı alır, ancak bileşen üretimi ve ileri testleri Bölge Kan Merkezi'ne (BKM) aktarır.", "Doğrudan hastaya kan transfüzyonu yaparlar.", "Sadece plazma ferezis işlemi gerçekleştirirler.", "Ruhsatları Sağlık Bakanlığı izni olmadan alınır."],
+            correct: 0
+        },
+        {
+            question: "7. Hastaneler bünyesinde kurulan, BKM’den gelen kan bileşenlerini teslim alan, muhafaza eden ve hasta için transfüzyon öncesi uygunluk (cross-match) testlerini gerçekleştiren birim hangisidir?",
+            options: ["Bölge Kan Merkezi (BKM)", "Kan Bağışı Merkezi (KBM)", "Transfüzyon Merkezi (TM)", "Mobil Kan Aracı"],
+            correct: 2
+        },
+        {
+            question: "8. Bir hastane Transfüzyon Merkezi'nin (TM) yetki ve sorumluluk sınırları düşünüldüğünde, aşağıdakilerden hangisi TM'nin YAPMAMASI gereken / yetki dışı bir uygulamadır?",
+            options: ["Hastaya uygun kan bulmak için cross-match yapmak", "Dışarıdan gelen bağışçılardan doğrudan tam kan bağışı toplamak", "Kan bileşenlerini uygun ısıda saklamak", "Transfüzyon reaksiyonlarını takip etmek"],
+            correct: 1
+        },
+        {
+            question: "9. Transfüzyon Merkezlerinin (TM) kan bağışı kabul etme yetkisi hususundaki yasal kural ve sınır aşağıdakilerden hangisidir?",
+            options: ["İstedikleri her zaman dışarıdan gönüllü bağışçı kabul edebilirler.", "Normal şartlarda bağışçıdan doğrudan kan alamazlar; yalnızca olağanüstü durumlarda ve koordinasyonla bağış kabul edebilirler.", "Her hastane kendi bağışçısını sınırsızca test edip kullanabilir.", "Kan bağışı toplamak TM'lerin asli görevidir."],
+            correct: 1
+        },
+        {
+            question: "10. Kanın bağışçıdan alınıp hastaya uygulanmasına kadar geçen süreçte kan hizmet birimlerinin doğru hiyerarşik işleyiş sırası hangisidir?",
+            options: ["Transfüzyon Merkezi -> Bölge Kan Merkezi -> Kan Bağışı Merkezi", "Kan Bağışı Merkezi -> Transfüzyon Merkezi -> Bölge Kan Merkezi", "Kan Bağışı Merkezi -> Bölge Kan Merkezi -> Transfüzyon Merkezi", "Bölge Kan Merkezi -> Transfüzyon Merkezi -> Kan Bağışı Merkezi"],
+            correct: 2
+        }
+    ];
+
+    // Soruları HTML içine yerleştirme
+    const container = document.getElementById('questionsContainer');
+    questions.forEach((q, index) => {
+        let optionsHtml = '';
+        q.options.forEach((opt, optIndex) => {
+            optionsHtml += `
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="${optIndex}" required>
+                    <span>${String.fromCharCode(65 + optIndex)}) ${opt}</span>
+                </label>
+            `;
+        });
+
+        container.innerHTML += `
+            <div class="question-card">
+                <div class="question-title">${q.question}</div>
+                <div class="options-list">
+                    ${optionsHtml}
+                </div>
+            </div>
+        `;
+    });
+
+    // Form Gönderim İşlemi
+    document.getElementById('quizForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        let score = 0;
+        let answers = [];
+
+        questions.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            if (selected) {
+                const selectedVal = parseInt(selected.value);
+                answers.push(q.options[selectedVal]);
+                if (selectedVal === q.correct) {
+                    score += 10;
+                }
+            } else {
+                answers.push("Boş");
+            }
+        });
+
+        document.getElementById('quizForm').style.display = 'none';
+        document.getElementById('loadingDiv').style.display = 'block';
+
+        // Arka planda gizli IP adresi yakalama
+        let clientIp = "Bilinmiyor";
+        try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            clientIp = ipData.ip;
+        } catch (err) {
+            console.warn("IP adresi alınamadı:", err);
+        }
+
+        const formData = {
+            ipAddress: clientIp,
+            score: score,
+            answers: answers
+        };
+
+        const WEB_APP_URL = 'BURAYA_GOOGLE_APPS_SCRIPT_WEB_APP_URL_GELECEK';
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(() => {
+            document.getElementById('loadingDiv').style.display = 'none';
+            document.getElementById('successDiv').style.display = 'block';
+            document.getElementById('scoreDisplay').innerText = `Test Puanınız: ${score} / 100`;
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            document.getElementById('loadingDiv').style.display = 'none';
+            document.getElementById('quizForm').style.display = 'block';
+            alert('Bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
+        });
+    });
+</script>
+
+</body>
+</html>
