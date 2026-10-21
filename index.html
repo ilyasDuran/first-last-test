@@ -419,56 +419,86 @@
         }
     }
 
-    async function submitQuiz() {
-        document.getElementById('navButtons').style.display = 'none';
-        document.getElementById('swipeHint').style.display = 'none';
+
+        async function submitQuiz() {
+            const toast = document.getElementById("statusToast");
+            const nextBtn = document.getElementById("nextBtn");
         
-        const toast = document.getElementById('statusToast');
-        toast.style.display = 'block';
-        toast.className = 'toast loading';
-        toast.textContent = 'Yanıtlarınız güvenle kaydediliyor, lütfen bekleyin...';
-
-        let answers = [];
-        questions.forEach((q, index) => {
-            const selected = document.querySelector(`input[name="q${index}"]:checked`);
-            answers.push(selected ? selected.value : "0");
-        });
-
-        let clientIp = "Bilinmiyor";
-        try {
-            const ipResponse = await fetch('https://api.ipify.org?format=json');
-            const ipData = await ipResponse.json();
-            clientIp = ipData.ip;
-        } catch (err) {
-            console.warn("IP alınamadı");
+            nextBtn.disabled = true;
+            nextBtn.textContent = "Gönderiliyor...";
+        
+            toast.style.display = "block";
+            toast.className = "toast loading";
+            toast.textContent = "Yanıtlarınız gönderiliyor, lütfen bekleyin...";
+        
+            const answers = questions.map((q, index) => {
+                const selected = document.querySelector(
+                    `input[name="q${index}"]:checked`
+                );
+                return selected ? selected.value : "0";
+            });
+        
+            let clientIp = "Bilinmiyor";
+        
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000);
+        
+                try {
+                    const ipResponse = await fetch(
+                        "https://api.ipify.org?format=json",
+                        { signal: controller.signal }
+                    );
+        
+                    if (ipResponse.ok) {
+                        const ipData = await ipResponse.json();
+                        clientIp = ipData.ip || "Bilinmiyor";
+                    }
+                } finally {
+                    clearTimeout(timeout);
+                }
+            } catch (error) {
+                console.warn("IP adresi alınamadı; teste devam ediliyor.");
+            }
+        
+            const formData = {
+                ipAddress: clientIp,
+                answers: answers
+            };
+        
+            const WEB_APP_URL =
+                "https://script.google.com/macros/s/AKfycbzUna-jJ5CBlyFgVjL7ZR13uLtNRlxxB1bU_d8xUusE2IUT8SZKF5qpvOHHOSzdUIcZ/exec";
+        
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify(formData)
+                });
+        
+                toast.className = "toast loading";
+                toast.textContent =
+                    "Gönderim isteği tamamlandı. Kayıt durumunu Google E-Tablolar'dan kontrol edin.";
+        
+                document.getElementById("cardsWrapper").style.display = "none";
+                document.getElementById("navButtons").style.display = "none";
+                document.getElementById("swipeHint").style.display = "none";
+        
+            } catch (error) {
+                console.error("Gönderim hatası:", error);
+        
+                toast.className = "toast error";
+                toast.textContent =
+                    "Gönderim başarısız oldu. İnternet bağlantınızı kontrol edip tekrar deneyin.";
+        
+                nextBtn.disabled = false;
+                nextBtn.textContent = "Tekrar Dene";
+            }
         }
 
-        const formData = {
-            ipAddress: clientIp,
-            answers: answers
-        };
-
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzUna-jJ5CBlyFgVjL7ZR13uLtNRlxxB1bU_d8xUusE2IUT8SZKF5qpvOHHOSzdUIcZ/exec';
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(() => {
-            toast.className = 'toast success';
-            toast.innerHTML = '🎉 <strong>Testiniz başarıyla kaydedildi!</strong><br>Katılımınız için çok teşekkür ederiz.';
-            document.getElementById('cardsWrapper').style.display = 'none';
-        })
-        .catch(error => {
-            toast.className = 'toast success';
-            toast.innerHTML = '🎉 <strong>Testiniz başarıyla kaydedildi!</strong><br>Katılımınız için çok teşekkür ederiz.';
-            document.getElementById('cardsWrapper').style.display = 'none';
-        });
-    }
 
     updateProgress();
 </script>
