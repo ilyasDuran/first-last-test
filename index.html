@@ -341,8 +341,8 @@
     questions.forEach((q, index) => {
         let optionsHtml = '';
         q.options.forEach((opt, optIndex) => {
-            const optNum = optIndex + 1; // 1, 2, 3, 4 (Rakam olarak gönderilecek)
-            const optLetter = String.fromCharCode(65 + optIndex); // A, B, C, D (Görsel gösterim)
+            const optNum = optIndex + 1;
+            const optLetter = String.fromCharCode(65 + optIndex);
             optionsHtml += `
                 <label class="option-label">
                     <input type="radio" name="q${index}" value="${optNum}">
@@ -394,7 +394,6 @@
         nextBtn.textContent = currentCardIndex === totalCards - 1 ? 'Anketi Gönder' : 'Sonraki Soru';
     }
 
-    // Dokunmatik Kaydırma (Swipe Gestures)
     let touchStartX = 0;
     let touchEndX = 0;
     const cardWrapper = document.getElementById('cardsWrapper');
@@ -451,22 +450,20 @@
 
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxlYmklH0ylTmAARs9CD1rE1DWkok46VWzoakRluTaDH6QyZZm0DOoI9ZuHr2wwvRU2NA/exec';
 
-        // text/plain kullanarak CORS takılmadan güvenli veri gönderimi
         fetch(WEB_APP_URL, {
             method: 'POST',
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8'
             },
             body: JSON.stringify(formData)
         })
-        .then(response => response.json())
-        .then(result => {
+        .then(() => {
             toast.className = 'toast success';
             toast.innerHTML = '🎉 <strong>Testiniz başarıyla kaydedildi!</strong><br>Katılımınız için çok teşekkür ederiz.';
             document.getElementById('cardsWrapper').style.display = 'none';
         })
         .catch(error => {
-            // no-cors olmadığı için artık yanıtı okuyabiliyoruz ama hata yakalama bloğu
             toast.className = 'toast success';
             toast.innerHTML = '🎉 <strong>Testiniz başarıyla kaydedildi!</strong><br>Katılımınız için çok teşekkür ederiz.';
             document.getElementById('cardsWrapper').style.display = 'none';
