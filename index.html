@@ -1,507 +1,263 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kan Hizmetleri ve Transfüzyon Ön Testi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --error: #ef4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kan Hizmetleri ve Transfüzyon Ön Testi</title>
+<style>
+  :root {
+    --primary: #6366f1; --primary-hover: #4f46e5;
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b;
+    --muted: #64748b; --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; padding: 15px;
+  }
+  .container {
+    width: 100%; max-width: 680px; background: var(--card);
+    border-radius: 24px; border: 1px solid var(--border);
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,.08); overflow: hidden;
+  }
+  .header { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 19px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: .9; }
+  .progress { background: var(--border); height: 6px; }
+  .progress-fill { height: 100%; width: 0; background: #34d399; transition: width .4s ease; }
+  .content { padding: 24px 20px; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+  .question-meta {
+    display: inline-block; font-size: 11px; font-weight: 700; color: var(--primary);
+    background: #eef2ff; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px;
+    text-transform: uppercase; letter-spacing: .8px;
+  }
+  .question-title { font-size: 15px; font-weight: 600; line-height: 1.5; margin-bottom: 16px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;
+    cursor: pointer; font-size: 13.5px; transition: all .2s;
+  }
+  .option:hover { border-color: var(--primary); background: #f5f3ff; }
+  .option.selected { border-color: var(--primary); background: #eef2ff; color: var(--primary); font-weight: 600; }
+  .option input { accent-color: var(--primary); transform: scale(1.2); }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 15px;
-        }
+  .nav { display: flex; gap: 12px; margin-top: 20px; }
+  .btn {
+    padding: 12px 20px; font-size: 14px; font-weight: 600; border: none;
+    border-radius: 12px; cursor: pointer; transition: all .2s;
+  }
+  .btn-secondary { background: #f1f5f9; color: var(--muted); }
+  .btn-secondary:hover { background: var(--border); color: var(--text); }
+  .btn-primary { background: var(--primary); color: #fff; flex-grow: 1; box-shadow: 0 4px 12px rgba(99,102,241,.25); }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn:disabled { opacity: .6; cursor: not-allowed; }
+  .hidden { display: none !important; }
 
-        .container {
-            width: 100%;
-            max-width: 680px;
-            background: var(--card-bg);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08), 0 10px 20px -5px rgba(0, 0, 0, 0.03);
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(226, 232, 240, 0.8);
-        }
+  .hint { text-align: center; font-size: 11px; color: var(--muted); margin-top: 15px; }
+  .toast { padding: 20px; border-radius: 14px; text-align: center; font-size: 14px; font-weight: 500; margin-top: 10px; }
+  .toast.loading { background: #e0e7ff; color: #3730a3; }
+  .toast.success { background: #d1fae5; color: #065f46; }
+  .toast.error { background: #fee2e2; color: #991b1b; }
 
-        .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 24px 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 19px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .header p {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .progress-container {
-            background: #e2e8f0;
-            height: 6px;
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #34d399;
-            width: 10%;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .content {
-            padding: 24px 20px;
-        }
-
-        .card-wrapper {
-            position: relative;
-            min-height: 350px;
-            touch-action: pan-y;
-        }
-
-        .question-card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 20px;
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transform: translateX(40px) scale(0.98);
-            pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        }
-
-        .question-card.active {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-            pointer-events: auto;
-            position: relative;
-        }
-
-        .question-meta {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 8px;
-            display: inline-block;
-            background: #f0fdf4;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-
-        .question-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-main);
-            line-height: 1.5;
-        }
-
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .option-label {
-            display: flex;
-            align-items: center;
-            padding: 12px 14px;
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 13.5px;
-            transition: all 0.2s ease;
-        }
-
-        .option-label:hover {
-            border-color: var(--primary);
-            background: #f5f3ff;
-        }
-
-        .option-label input:checked + span {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .option-label:has(input:checked) {
-            border-color: var(--primary);
-            background: #eef2ff;
-        }
-
-        .option-label input {
-            margin-right: 12px;
-            accent-color: var(--primary);
-            transform: scale(1.2);
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            gap: 12px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: var(--text-muted);
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8f0;
-            color: var(--text-main);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            flex-grow: 1;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-        }
-
-        .swipe-hint {
-            text-align: center;
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 15px;
-            opacity: 0.8;
-        }
-
-        .toast {
-            display: none;
-            padding: 20px;
-            border-radius: 14px;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: 10px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .toast.loading {
-            background: #e0e7ff;
-            color: #3730a3;
-        }
-
-        .toast.success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .toast.error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 10px; }
-            .container { border-radius: 18px; }
-            .content { padding: 16px 14px; }
-            .question-title { font-size: 14px; }
-            .option-label { font-size: 13px; padding: 10px 12px; }
-        }
-    </style>
+  @media (max-width: 480px) {
+    body { padding: 10px; }
+    .container { border-radius: 18px; }
+    .content { padding: 16px 14px; }
+    .question-title { font-size: 14px; }
+    .option { font-size: 13px; padding: 10px 12px; }
+  }
+</style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>Kan Hizmetleri ve Transfüzyon Ön Testi</h1>
-        <p>Soruları yanıtlayarak ilerleyebilir, dilediğiniz soruyu boş bırakabilirsiniz.</p>
-    </div>
-    <div class="progress-container">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
+  <div class="header">
+    <h1>Kan Hizmetleri ve Transfüzyon Ön Testi</h1>
+    <p>Soruları yanıtlayarak ilerleyebilir, dilediğiniz soruyu boş bırakabilirsiniz.</p>
+  </div>
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
 
-    <div class="content">
-        <form id="quizForm">
-            <div class="card-wrapper" id="cardsWrapper">
-                <!-- Kartlar dinamik yüklenir -->
-            </div>
-
-            <div class="nav-buttons" id="navButtons">
-                <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeCard(-1)" style="display:none;">Geri</button>
-                <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeCard(1)">Sonraki Soru</button>
-            </div>
-            
-            <div class="swipe-hint" id="swipeHint">💡 İpucu: Telefonunuzda parmağınızla sağa/sola kaydırarak da geçiş yapabilirsiniz.</div>
-        </form>
-
-        <div id="statusToast" class="toast"></div>
+  <div class="content">
+    <div id="quiz">
+      <div id="questionBox"></div>
+      <div class="nav">
+        <button type="button" class="btn btn-secondary hidden" id="prevBtn">Geri</button>
+        <button type="button" class="btn btn-primary" id="nextBtn">Sonraki Soru</button>
+      </div>
+      <div class="hint">💡 Telefonda parmağınızla sağa/sola kaydırarak da geçiş yapabilirsiniz.</div>
     </div>
+    <div id="toast" class="toast hidden"></div>
+  </div>
 </div>
 
 <script>
-    const questions = [
-        {
-            question: "Türkiye'de kan hizmet birimlerinin ruhsatlandırılması, ulusal standartlarının belirlenmesi ve tüm transfüzyon sisteminin denetlenmesinden sorumlu en üst yetkili otorite hangisidir?",
-            options: ["Türk Kızılay", "T.C. Sağlık Bakanlığı", "Sosyal Güvenlik Kurumu (SGK)", "Türk Tabipleri Birliği (TTB)"]
-        },
-        {
-            question: "Türkiye'deki bölgesel kan bankacılığı yapılanması kapsamında, ülke genelinde gönüllü ve düzenli kan bağışçısı kazanımı ile kan tedarik organizasyonunu yürütmekle yetkilendirilen kurum hangisidir?",
-            options: ["Türk Kızılay", "Sağlık Bakanlığı", "Kızılay Hastaneleri", "Üniversite Hastaneleri"]
-        },
-        {
-            question: "Bağışçılardan toplanan tam kanın eritrosit, trombosit ve taze donmuş plazma gibi bileşenlere ayrıştırıldığı ve mikrobiyolojik/immünohematolojik tarama testlerinin yapıldığı merkez hangisidir?",
-            options: ["Transfüzyon Merkezi (TM)", "Kan Bağışı Merkezi (KBM)", "Bölge Kan Merkezi (BKM)", "Hastane Kan Bankası"]
-        },
-        {
-            question: "Bölge Kan Merkezi'nin (BKM) görev ve yetki sınırları dikkate alındığında, aşağıdakilerden hangisi BKM'nin yetki alanı dışındadır (yapmadığı iştir)?",
-            options: ["Kan bileşenlerini üretmek", "Kan testlerini (mikrobiyolojik ve immünohematolojik) yapmak", "Doğrudan hastalara kan transfüzyonu (nakli) uygulamak", "Bağışçılardan kan toplamak ve depolamak"]
-        },
-        {
-            question: "Doğrudan Bölge Kan Merkezi'ne (BKM) bağlı olarak çalışan, toplumda kan bağışı bilinci oluşturan, bağışçı kabulü ve kan alma (flebotomi) süreçlerini yürüten birim hangisidir?",
-            options: ["Kan Bağışı Merkezi (KBM)", "Transfüzyon Merkezi (TM)", "Sağlık Ocağı", "Acil Servis"]
-        },
-        {
-            question: "Kan Bağışı Merkezlerinin (KBM) çalışma sınırları ve yetkileri ile ilgili aşağıdaki ifadelerden hangisi DOĞRUDUR?",
-            options: ["Tam kan bağışı alır, ancak bileşen üretimi ve ileri testleri Bölge Kan Merkezi'ne (BKM) aktarır.", "Doğrudan hastaya kan transfüzyonu yaparlar.", "Sadece plazma ferezis işlemi gerçekleştirirler.", "Ruhsatları Sağlık Bakanlığı izni olmadan alınır."]
-        },
-        {
-            question: "Hastaneler bünyesinde kurulan, BKM’den gelen kan bileşenlerini teslim alan, muhafaza eden ve hasta için transfüzyon öncesi uygunluk (cross-match) testlerini gerçekleştiren birim hangisidir?",
-            options: ["Bölge Kan Merkezi (BKM)", "Kan Bağışı Merkezi (KBM)", "Transfüzyon Merkezi (TM)", "Mobil Kan Aracı"]
-        },
-        {
-            question: "Bir hastane Transfüzyon Merkezi'nin (TM) yetki ve sorumluluk sınırları düşünüldüğünde, aşağıdakilerden hangisi TM'nin YAPMAMASI gereken / yetki dışı bir uygulamadır?",
-            options: ["Hastaya uygun kan bulmak için cross-match yapmak", "Dışarıdan gelen bağışçılardan doğrudan tam kan bağışı toplamak", "Kan bileşenlerini uygun ısıda saklamak", "Transfüzyon reaksiyonlarını takip etmek"]
-        },
-        {
-            question: "Transfüzyon Merkezlerinin (TM) kan bağışı kabul etme yetkisi hususundaki yasal kural ve sınır aşağıdakilerden hangisidir?",
-            options: ["İstedikleri her zaman dışarıdan gönüllü bağışçı kabul edebilirler.", "Normal şartlarda bağışçıdan doğrudan alamazlar; yalnızca olağanüstü durumlarda ve koordinasyonla bağış kabul edebilirler.", "Her hastane kendi bağışçısını sınırsızca test edip kullanabilir.", "Kan bağışı toplamak TM'lerin asli görevidir."]
-        },
-        {
-            question: "Kanın bağışçıdan alınıp hastaya uygulanmasına kadar geçen süreçte kan hizmet birimlerinin doğru hiyerarşik işleyiş sırası hangisidir?",
-            options: ["Transfüzyon Merkezi -> Bölge Kan Merkezi -> Kan Bağışı Merkezi", "Kan Bağışı Merkezi -> Transfüzyon Merkezi -> Bölge Kan Merkezi", "Kan Bağışı Merkezi -> Bölge Kan Merkezi -> Transfüzyon Merkezi", "Bölge Kan Merkezi -> Transfüzyon Merkezi -> Kan Bağışı Merkezi"]
-        }
-    ];
+// ====== AYARLAR ======
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRdUB50VD-dHUIj3ofiax9ew5f0BPCSBzPp8kQGP9gawmLv1X-61uY-nN31SyOGTd2/exec";
 
-    let currentCardIndex = 0;
-    const totalCards = questions.length;
+const questions = [
+  { q: "Türkiye'de kan hizmet birimlerinin ruhsatlandırılması, ulusal standartlarının belirlenmesi ve tüm transfüzyon sisteminin denetlenmesinden sorumlu en üst yetkili otorite hangisidir?",
+    o: ["Türk Kızılay", "T.C. Sağlık Bakanlığı", "Sosyal Güvenlik Kurumu (SGK)", "Türk Tabipleri Birliği (TTB)"] },
+  { q: "Türkiye'deki bölgesel kan bankacılığı yapılanması kapsamında, ülke genelinde gönüllü ve düzenli kan bağışçısı kazanımı ile kan tedarik organizasyonunu yürütmekle yetkilendirilen kurum hangisidir?",
+    o: ["Türk Kızılay", "Sağlık Bakanlığı", "Kızılay Hastaneleri", "Üniversite Hastaneleri"] },
+  { q: "Bağışçılardan toplanan tam kanın eritrosit, trombosit ve taze donmuş plazma gibi bileşenlere ayrıştırıldığı ve mikrobiyolojik/immünohematolojik tarama testlerinin yapıldığı merkez hangisidir?",
+    o: ["Transfüzyon Merkezi (TM)", "Kan Bağışı Merkezi (KBM)", "Bölge Kan Merkezi (BKM)", "Hastane Kan Bankası"] },
+  { q: "Bölge Kan Merkezi'nin (BKM) görev ve yetki sınırları dikkate alındığında, aşağıdakilerden hangisi BKM'nin yetki alanı dışındadır (yapmadığı iştir)?",
+    o: ["Kan bileşenlerini üretmek", "Kan testlerini (mikrobiyolojik ve immünohematolojik) yapmak", "Doğrudan hastalara kan transfüzyonu (nakli) uygulamak", "Bağışçılardan kan toplamak ve depolamak"] },
+  { q: "Doğrudan Bölge Kan Merkezi'ne (BKM) bağlı olarak çalışan, toplumda kan bağışı bilinci oluşturan, bağışçı kabulü ve kan alma (flebotomi) süreçlerini yürüten birim hangisidir?",
+    o: ["Kan Bağışı Merkezi (KBM)", "Transfüzyon Merkezi (TM)", "Sağlık Ocağı", "Acil Servis"] },
+  { q: "Kan Bağışı Merkezlerinin (KBM) çalışma sınırları ve yetkileri ile ilgili aşağıdaki ifadelerden hangisi DOĞRUDUR?",
+    o: ["Tam kan bağışı alır, ancak bileşen üretimi ve ileri testleri Bölge Kan Merkezi'ne (BKM) aktarır.", "Doğrudan hastaya kan transfüzyonu yaparlar.", "Sadece plazma ferezis işlemi gerçekleştirirler.", "Ruhsatları Sağlık Bakanlığı izni olmadan alınır."] },
+  { q: "Hastaneler bünyesinde kurulan, BKM'den gelen kan bileşenlerini teslim alan, muhafaza eden ve hasta için transfüzyon öncesi uygunluk (cross-match) testlerini gerçekleştiren birim hangisidir?",
+    o: ["Bölge Kan Merkezi (BKM)", "Kan Bağışı Merkezi (KBM)", "Transfüzyon Merkezi (TM)", "Mobil Kan Aracı"] },
+  { q: "Bir hastane Transfüzyon Merkezi'nin (TM) yetki ve sorumluluk sınırları düşünüldüğünde, aşağıdakilerden hangisi TM'nin YAPMAMASI gereken / yetki dışı bir uygulamadır?",
+    o: ["Hastaya uygun kan bulmak için cross-match yapmak", "Dışarıdan gelen bağışçılardan doğrudan tam kan bağışı toplamak", "Kan bileşenlerini uygun ısıda saklamak", "Transfüzyon reaksiyonlarını takip etmek"] },
+  { q: "Transfüzyon Merkezlerinin (TM) kan bağışı kabul etme yetkisi hususundaki yasal kural ve sınır aşağıdakilerden hangisidir?",
+    o: ["İstedikleri her zaman dışarıdan gönüllü bağışçı kabul edebilirler.", "Normal şartlarda bağışçıdan doğrudan alamazlar; yalnızca olağanüstü durumlarda ve koordinasyonla bağış kabul edebilirler.", "Her hastane kendi bağışçısını sınırsızca test edip kullanabilir.", "Kan bağışı toplamak TM'lerin asli görevidir."] },
+  { q: "Kanın bağışçıdan alınıp hastaya uygulanmasına kadar geçen süreçte kan hizmet birimlerinin doğru hiyerarşik işleyiş sırası hangisidir?",
+    o: ["Transfüzyon Merkezi -> Bölge Kan Merkezi -> Kan Bağışı Merkezi", "Kan Bağışı Merkezi -> Transfüzyon Merkezi -> Bölge Kan Merkezi", "Kan Bağışı Merkezi -> Bölge Kan Merkezi -> Transfüzyon Merkezi", "Bölge Kan Merkezi -> Transfüzyon Merkezi -> Kan Bağışı Merkezi"] }
+];
 
-    const wrapper = document.getElementById('cardsWrapper');
-    questions.forEach((q, index) => {
-        let optionsHtml = '';
-        q.options.forEach((opt, optIndex) => {
-            const optNum = optIndex + 1;
-            const optLetter = String.fromCharCode(65 + optIndex);
-            optionsHtml += `
-                <label class="option-label">
-                    <input type="radio" name="q${index}" value="${optNum}">
-                    <span>${optLetter}) ${opt}</span>
-                </label>
-            `;
-        });
+// ====== DURUM ======
+const total = questions.length;
+const answers = new Array(total).fill(0);   // 0 = boş, 1-4 = seçilen şık
+let current = 0;
+let submitting = false;
 
-        wrapper.innerHTML += `
-            <div class="question-card ${index === 0 ? 'active' : ''}" id="card-${index}">
-                <div class="question-meta">Soru ${index + 1} / ${totalCards}</div>
-                <div class="question-title">${q.question}</div>
-                <div class="options-list">
-                    ${optionsHtml}
-                </div>
-            </div>
-        `;
+const $ = id => document.getElementById(id);
+const box = $("questionBox"), prevBtn = $("prevBtn"), nextBtn = $("nextBtn");
+
+// ====== SORU ÇİZİMİ ======
+function render() {
+  const item = questions[current];
+  box.innerHTML = "";
+
+  const meta = document.createElement("div");
+  meta.className = "question-meta";
+  meta.textContent = "Soru " + (current + 1) + " / " + total;
+
+  const title = document.createElement("div");
+  title.className = "question-title";
+  title.textContent = item.q;
+
+  const list = document.createElement("div");
+  list.className = "options";
+
+  item.o.forEach((text, i) => {
+    const value = i + 1;
+    const label = document.createElement("label");
+    label.className = "option" + (answers[current] === value ? " selected" : "");
+
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "q" + current;
+    input.checked = answers[current] === value;
+    input.addEventListener("change", () => {
+      answers[current] = value;
+      list.querySelectorAll(".option").forEach(el => el.classList.remove("selected"));
+      label.classList.add("selected");
     });
 
-    function updateProgress() {
-        const percentage = ((currentCardIndex + 1) / totalCards) * 100;
-        document.getElementById('progressFill').style.width = percentage + '%';
+    const span = document.createElement("span");
+    span.textContent = String.fromCharCode(65 + i) + ") " + text;
+
+    label.append(input, span);
+    list.appendChild(label);
+  });
+
+  box.append(meta, title, list);
+
+  $("progressFill").style.width = ((current + 1) / total * 100) + "%";
+  prevBtn.classList.toggle("hidden", current === 0);
+  nextBtn.textContent = current === total - 1 ? "Testi Gönder" : "Sonraki Soru";
+}
+
+function go(step) {
+  if (submitting) return;
+  const next = current + step;
+  if (next < 0 || next >= total) return;
+  current = next;
+  render();
+}
+
+prevBtn.addEventListener("click", () => go(-1));
+nextBtn.addEventListener("click", () => {
+  if (current === total - 1) submitQuiz();
+  else go(1);
+});
+
+// ====== KAYDIRMA (sadece soru geçişi, son soruda göndermez) ======
+let startX = 0;
+box.addEventListener("touchstart", e => { startX = e.changedTouches[0].screenX; }, { passive: true });
+box.addEventListener("touchend", e => {
+  const diff = e.changedTouches[0].screenX - startX;
+  if (diff < -50) go(1);
+  else if (diff > 50) go(-1);
+}, { passive: true });
+
+// ====== GÖNDERİM ======
+function showToast(type, text) {
+  const t = $("toast");
+  t.className = "toast " + type;
+  t.textContent = text;
+}
+
+async function getIp() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4000);
+  try {
+    const res = await fetch("https://api.ipify.org?format=json", { signal: controller.signal });
+    if (!res.ok) return "Bilinmiyor";
+    const data = await res.json();
+    return data.ip || "Bilinmiyor";
+  } catch (e) {
+    return "Bilinmiyor";
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function submitQuiz() {
+  if (submitting) return;
+  submitting = true;
+  nextBtn.disabled = true;
+  prevBtn.disabled = true;
+  nextBtn.textContent = "Gönderiliyor...";
+  showToast("loading", "Yanıtlarınız gönderiliyor, lütfen bekleyin...");
+
+  try {
+    const payload = { ipAddress: await getIp(), answers: answers.map(String) };
+
+    // Content-Type text/plain: tarayıcı "basit istek" sayar, CORS ön kontrolü (preflight) yapılmaz.
+    const response = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (result.status !== "success") {
+      throw new Error(result.message || "Kayıt başarısız.");
     }
 
-    function changeCard(direction) {
-        currentCardIndex += direction;
+    $("quiz").classList.add("hidden");
+    $("progressFill").style.width = "100%";
+    showToast("success", "Yanıtlarınız başarıyla kaydedildi. Teşekkürler!");
 
-        if (currentCardIndex >= totalCards) {
-            submitQuiz();
-            return;
-        }
+  } catch (err) {
+    console.error("Gönderim hatası:", err);
+    showToast("error", "Gönderim başarısız: " + err.message);
+    submitting = false;
+    nextBtn.disabled = false;
+    prevBtn.disabled = false;
+    nextBtn.textContent = "Tekrar Dene";
+  }
+}
 
-        if (currentCardIndex < 0) {
-            currentCardIndex = 0;
-            return;
-        }
-
-        const cards = document.querySelectorAll('.question-card');
-        cards.forEach((card, idx) => {
-            card.classList.toggle('active', idx === currentCardIndex);
-        });
-
-        updateProgress();
-
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        prevBtn.style.display = currentCardIndex === 0 ? 'none' : 'block';
-        nextBtn.textContent = currentCardIndex === totalCards - 1 ? 'Anketi Gönder' : 'Sonraki Soru';
-    }
-
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const cardWrapper = document.getElementById('cardsWrapper');
-
-    cardWrapper.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    }, {passive: true});
-
-    cardWrapper.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }, {passive: true});
-
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        if (touchEndX < touchStartX - swipeThreshold) {
-            changeCard(1);
-        }
-        if (touchEndX > touchStartX + swipeThreshold) {
-            if (currentCardIndex > 0) {
-                changeCard(-1);
-            }
-        }
-    }
-
-
-        async function submitQuiz() {
-            const toast = document.getElementById("statusToast");
-            const nextBtn = document.getElementById("nextBtn");
-        
-            nextBtn.disabled = true;
-            nextBtn.textContent = "Gönderiliyor...";
-        
-            toast.style.display = "block";
-            toast.className = "toast loading";
-            toast.textContent = "Yanıtlarınız gönderiliyor, lütfen bekleyin...";
-        
-            const answers = questions.map((q, index) => {
-                const selected = document.querySelector(
-                    `input[name="q${index}"]:checked`
-                );
-                return selected ? selected.value : "0";
-            });
-        
-            let clientIp = "Bilinmiyor";
-        
-            try {
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 5000);
-        
-                try {
-                    const ipResponse = await fetch(
-                        "https://api.ipify.org?format=json",
-                        { signal: controller.signal }
-                    );
-        
-                    if (ipResponse.ok) {
-                        const ipData = await ipResponse.json();
-                        clientIp = ipData.ip || "Bilinmiyor";
-                    }
-                } finally {
-                    clearTimeout(timeout);
-                }
-            } catch (error) {
-                console.warn("IP adresi alınamadı; teste devam ediliyor.");
-            }
-        
-            const formData = {
-                ipAddress: clientIp,
-                answers: answers
-            };
-        
-            const WEB_APP_URL =
-                "https://script.google.com/macros/s/AKfycbyRdUB50VD-dHUIj3ofiax9ew5f0BPCSBzPp8kQGP9gawmLv1X-61uY-nN31SyOGTd2/exec";
-        
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8"
-                    },
-                    body: JSON.stringify(formData)
-                });
-        
-                toast.className = "toast loading";
-                toast.textContent =
-                    "Gönderim isteği tamamlandı. Kayıt durumunu Google E-Tablolar'dan kontrol edin.";
-        
-                document.getElementById("cardsWrapper").style.display = "none";
-                document.getElementById("navButtons").style.display = "none";
-                document.getElementById("swipeHint").style.display = "none";
-        
-            } catch (error) {
-                console.error("Gönderim hatası:", error);
-        
-                toast.className = "toast error";
-                toast.textContent =
-                    "Gönderim başarısız oldu. İnternet bağlantınızı kontrol edip tekrar deneyin.";
-        
-                nextBtn.disabled = false;
-                nextBtn.textContent = "Tekrar Dene";
-            }
-        }
-
-
-    updateProgress();
+render();
 </script>
-
 </body>
 </html>
